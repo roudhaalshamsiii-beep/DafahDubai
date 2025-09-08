@@ -5,70 +5,55 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>Dafah Dubai · In Bloom, At Rest</title>
   <style>
-    :root {
-      --bg1: #F3EFE9;  /* top beige */
-      --bg2: #E9E3DC;  /* bottom beige */
-      --text: #4a4a4a;
+    :root{
+      --bg1:#F3EFE9; /* beige top */
+      --bg2:#E9E3DC; /* beige bottom */
+      --text:#4a4a4a;
+      --frame-max:960px;      /* desktop max width */
+      --frame-h: calc(100svh - 92px); /* safe viewport height minus header */
     }
 
-    /* Reset + layout */
-    html, body {
-      margin: 0;
-      height: 100%;
-    }
-    body {
+    html, body { height:100%; margin:0; }
+    body{
       font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
-      color: var(--text);
+      color:var(--text);
       background: linear-gradient(var(--bg1), var(--bg2));
-      display: flex;
-      flex-direction: column;
-      align-items: center;
+      display:flex; flex-direction:column; align-items:center;
     }
 
-    /* Header */
-    header {
-      text-align: center;
-      padding: 16px 10px;
-    }
-    header h1 {
-      margin: 0;
-      font-size: 18px;
-      letter-spacing: 0.08em;
-    }
-    header p {
-      margin: 6px 0 0;
-      font-size: 13px;
-      opacity: 0.8;
-      letter-spacing: 0.05em;
+    header{ text-align:center; padding:16px 10px 8px; }
+    header h1{ margin:0; font-size:18px; letter-spacing:.08em; }
+    header p{ margin:6px 0 0; font-size:13px; opacity:.8; letter-spacing:.05em; }
+
+    .stage{
+      width:100%;
+      display:grid; place-items:center;
+      padding:12px 0 20px;
+      box-sizing:border-box;
+      overflow:hidden; /* no outer scrollbars */
     }
 
-    /* PDF container */
-    .pdf-container {
-      flex: 1;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      width: 100%;
-      padding: 12px 0 20px;
-      box-sizing: border-box;
+    .frame{
+      width:min(var(--frame-max), 94vw);
+      height:var(--frame-h);
+      background:#fff;
+      border-radius:6px;
+      box-shadow:0 16px 48px rgba(0,0,0,.14);
+      overflow:hidden;   /* clip viewer edges */
+      display:grid;
     }
 
-    .pdf-container iframe {
-      width: min(960px, 90%);
-      height: 90vh; /* safe height for mobile */
-      border: none;
-      background: white;
-      box-shadow: 0 12px 40px rgba(0,0,0,0.15);
-      border-radius: 6px;
+    /* The PDF.js viewer iframe */
+    .pdf{
+      width:100%;
+      height:100%;
+      border:0;
+      -webkit-overflow-scrolling: touch; /* smooth iOS scroll inside viewer */
     }
 
-    @media (max-width: 768px) {
-      header h1 { font-size: 16px; }
-      header p { font-size: 12px; }
-      .pdf-container iframe {
-        width: 95%;
-        height: 85vh;
-      }
+    @media (max-width:768px){
+      header h1{ font-size:16px; }
+      header p{ font-size:12px; }
     }
   </style>
 </head>
@@ -78,8 +63,16 @@
     <p>Dafah Dubai · Lookbook 2025</p>
   </header>
 
-  <div class="pdf-container">
-    <iframe src="DafahDubaiLookbook2025.pdf#view=FitH" allowfullscreen></iframe>
-  </div>
+  <main class="stage">
+    <div class="frame">
+      <!-- Use PDF.js to avoid iOS "Open/Download" chips and keep smooth scrolling -->
+      <iframe
+        class="pdf"
+        src="https://mozilla.github.io/pdf.js/web/viewer.html?file=DafahDubaiLookbook2025.pdf#toolbar=0&navpanes=0&zoom=page-fit"
+        allowfullscreen
+        sandbox="allow-scripts allow-same-origin allow-forms"
+      ></iframe>
+    </div>
+  </main>
 </body>
 </html>
