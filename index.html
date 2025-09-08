@@ -2,87 +2,86 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>Dafah Dubai · In Bloom, At Rest</title>
   <style>
     :root{
-      --bg1:#F3EFE9;   /* light beige */
-      --bg2:#E9E3DC;   /* slightly deeper beige */
+      --bg1:#F3EFE9;          /* top beige */
+      --bg2:#E9E3DC;          /* bottom beige */
       --text:#4a4a4a;
-      --header-h:72px;
-      --max-width:900px; /* max width of the catalogue */
+      --maxW:960px;           /* max “page” width on desktop */
+      --framePad:16px;
     }
 
+    /* Layout + background */
     html, body { height:100%; margin:0; }
     body{
       font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
       color:var(--text);
-      background:
-        radial-gradient(1200px 800px at 50% -200px, var(--bg1), transparent 60%),
-        linear-gradient(var(--bg1), var(--bg2));
-      overflow:auto; /* allow scrolling */
-      display:flex;
-      flex-direction:column;
-      align-items:center;
+      background: linear-gradient(var(--bg1), var(--bg2));
+      display:flex; flex-direction:column; align-items:center;
+      min-height:100svh; /* safe height on iOS */
     }
 
-    /* Top title bar */
-    .topbar{
-      position:sticky; top:0; height:var(--header-h);
-      display:flex; align-items:center; justify-content:center;
-      text-align:center; z-index:10;
-      background:transparent;
-      margin-bottom:8px;
-    }
-    .title{
-      letter-spacing:0.06em;
-      font-weight:500;
-      font-size:18px;
-    }
-    .subtitle{
-      display:block; margin-top:4px; opacity:.7; font-size:13px; letter-spacing:.08em;
+    /* Header */
+    header{ text-align:center; padding:16px 10px 10px; }
+    header h1{ margin:0; font-size:18px; letter-spacing:.08em; }
+    header p{ margin:6px 0 0; font-size:13px; opacity:.8; letter-spacing:.05em; }
+
+    /* Centering stage */
+    .stage{
+      flex:1;
+      width:100%;
+      display:grid;
+      place-items:center;        /* centers the frame */
+      padding:12px 0 20px;
+      box-sizing:border-box;
+      overflow:hidden;           /* no outer scrollbar */
     }
 
-    /* PDF frame centered */
-    .viewer-wrapper{
-      width:100%;
-      display:flex;
-      justify-content:center;
-      padding:0 5%; /* side space */
+    /* The white “page” frame */
+    .frame{
+      width:min(var(--maxW), 94vw);
+      height:calc(100svh - 96px);  /* header space accounted */
+      background:#fff;
+      border-radius:6px;
+      box-shadow:0 16px 48px rgba(0,0,0,.14);
+      overflow:hidden;             /* clip viewer edges */
+      display:grid;
     }
-    .viewer{
+
+    /* PDF viewer iframe (PDF.js) */
+    .pdf{
       width:100%;
-      max-width:var(--max-width);
-      height:calc(100vh - var(--header-h) - 20px);
+      height:100%;
       border:0;
-      box-shadow:0 12px 40px rgba(0,0,0,.12);
+      -webkit-overflow-scrolling:touch; /* smooth iOS scroll */
       background:#fff;
     }
 
-    @media (max-width:600px){
-      :root{ --header-h:56px; --max-width:100%; }
-      .title{ font-size:16px; }
-      .subtitle{ font-size:12px; }
-      .viewer-wrapper{ padding:0 2%; }
+    @media (max-width:768px){
+      header h1{ font-size:16px; }
+      header p{ font-size:12px; }
+      .frame{ width:96vw; }
     }
   </style>
 </head>
 <body>
-  <!-- Collection name -->
-  <header class="topbar">
-    <div>
-      <div class="title">IN BLOOM, AT REST</div>
-      <small class="subtitle">Dafah Dubai · Lookbook 2025</small>
-    </div>
+  <header>
+    <h1>IN BLOOM, AT REST</h1>
+    <p>Dafah Dubai · Lookbook 2025</p>
   </header>
 
-  <!-- Catalogue centered -->
-  <div class="viewer-wrapper">
-    <iframe
-      class="viewer"
-      src="DafahDubaiLookbook2025.pdf#view=fitH&scrollbar=1"
-      allowfullscreen
-    ></iframe>
-  </div>
+  <main class="stage">
+    <div class="frame">
+      <!-- PDF.js avoids iOS “Open/Download” chips and keeps the PDF centered -->
+      <iframe
+        class="pdf"
+        src="https://mozilla.github.io/pdf.js/web/viewer.html?file=DafahDubaiLookbook2025.pdf#toolbar=0&navpanes=0&zoom=page-fit"
+        sandbox="allow-scripts allow-same-origin allow-forms"
+        allow="fullscreen"
+      ></iframe>
+    </div>
+  </main>
 </body>
 </html>
