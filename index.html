@@ -2,70 +2,132 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1, viewport-fit=cover"
+  />
   <title>Dafah Dubai · In Bloom, At Rest</title>
   <style>
-    body {
-      margin: 0;
-      height: 100vh;
+    :root{
+      --bg1:#F3EFE9; /* beige top */
+      --bg2:#E9E3DC; /* beige bottom */
+      --text:#4a4a4a;
+      --header-h:72px;
+      --frame-w:80vw;   /* desktop width */
+      --frame-h:90svh;  /* safe viewport for iOS */
+    }
+
+    /* Base layout */
+    html, body { height: 100%; margin: 0; }
+    body{
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+      color: var(--text);
+      background: linear-gradient(var(--bg1), var(--bg2));
       display: flex;
       flex-direction: column;
       align-items: center;
-      background: linear-gradient(#F3EFE9, #E9E3DC); /* beige */
-      font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
-      color: #4a4a4a;
+      min-height: 100svh; /* iPhone safe height */
     }
 
-    header {
-      padding: 20px 10px;
+    /* Header */
+    header{
+      height: var(--header-h);
+      display: grid;
+      place-items: center;
       text-align: center;
+      padding: 0 12px;
     }
-
-    header h1 {
+    h1{
+      margin: 10px 0 0;
       font-size: 18px;
-      letter-spacing: 0.08em;
-      margin: 0;
+      letter-spacing: .08em;
     }
-
-    header p {
+    .sub{
+      margin: 6px 0 0;
       font-size: 13px;
-      margin: 5px 0 0;
-      opacity: 0.8;
+      opacity: .8;
+      letter-spacing: .06em;
     }
 
-    .pdf-container {
+    /* Mobile utility bar (shown on small screens) */
+    .actions{
+      display: none;
+      gap: 8px;
+      margin-top: 6px;
+    }
+    .btn{
+      border: 1px solid #ddd;
+      border-radius: 999px;
+      padding: 6px 12px;
+      text-decoration: none;
+      color: #333;
+      background: #fff9;
+      backdrop-filter: blur(4px);
+      font-size: 13px;
+    }
+
+    /* PDF frame wrapper */
+    .stage{
       flex: 1;
-      display: flex;
-      justify-content: center;
-      align-items: center;
       width: 100%;
-      overflow: auto;
+      display: grid;
+      place-items: center;
+      overflow: hidden; /* no outer scrollbars */
+      padding: 12px 0 20px;
     }
 
-    .pdf-container iframe {
-      width: 80%;
-      height: 90%;
+    /* The centered “page” look */
+    .frame{
+      width: min(960px, var(--frame-w));
+      height: var(--frame-h);
+      background: #fff;
+      box-shadow: 0 16px 48px rgba(0,0,0,.14);
+      border-radius: 6px;
+      overflow: hidden; /* clip the PDF viewer edges */
+      display: grid;
+    }
+
+    /* The PDF itself */
+    .pdf{
+      width: 100%;
+      height: 100%;
       border: none;
-      box-shadow: 0 12px 40px rgba(0,0,0,0.15);
-      background: white;
+      /* smooth scroll on iOS */
+      -webkit-overflow-scrolling: touch;
+      background: #fff;
     }
 
-    @media (max-width: 768px) {
-      .pdf-container iframe {
-        width: 95%;
-        height: 85%;
+    /* Mobile tweaks */
+    @media (max-width: 768px){
+      :root{
+        --header-h:60px;
+        --frame-w:94vw;   /* wider on phones */
+        --frame-h:84svh;  /* leave room for address bar/gestures */
       }
+      h1{ font-size: 16px; }
+      .sub{ font-size: 12px; }
+      .actions{ display: flex; }
     }
   </style>
 </head>
 <body>
   <header>
-    <h1>IN BLOOM, AT REST</h1>
-    <p>Dafah Dubai · Lookbook 2025</p>
+    <div>
+      <h1>IN BLOOM, AT REST</h1>
+      <div class="sub">Dafah Dubai · Lookbook 2025</div>
+      <!-- Handy on iPhone if the inline viewer is picky -->
+      <div class="actions">
+        <a class="btn" href="DafahDubaiLookbook2025.pdf" target="_blank" rel="noopener">Open</a>
+        <a class="btn" href="DafahDubaiLookbook2025.pdf" download="Lookbook2025.pdf">Download</a>
+      </div>
+    </div>
   </header>
 
-  <div class="pdf-container">
-    <iframe src="DafahDubaiLookbook2025.pdf#view=FitH" allowfullscreen></iframe>
-  </div>
+  <main class="stage">
+    <div class="frame">
+      <!-- Native viewer (best on iOS). Change to Lookbook2025.pdf if you rename the file. -->
+      <iframe class="pdf" src="DafahDubaiLookbook2025.pdf#view=FitH" allowfullscreen></iframe>
+    </div>
+  </main>
 </body>
 </html>
