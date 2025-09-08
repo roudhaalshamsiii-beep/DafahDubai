@@ -5,80 +5,27 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>Dafah Dubai · In Bloom, At Rest</title>
   <style>
-    :root{
-      --bg-top:#F3EFE9;  /* soft beige (top) */
-      --bg-bot:#E9E3DC;  /* soft beige (bottom) */
-      --ink:#4a4a4a;
-      --paper-max:960px;           /* desktop max width for the “page stack” */
-      --paper-pad:14px;
-      --radius:8px;
-      --shadow:0 18px 54px rgba(0,0,0,.14);
-    }
-
-    /* Base + background */
-    html, body { height:100%; margin:0; }
+    :root{ --bg1:#F3EFE9; --bg2:#E9E3DC; --ink:#4a4a4a; --maxW:960px; --pad:14px; }
+    html,body{height:100%;margin:0}
     body{
-      font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
-      color:var(--ink);
+      font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif; color:var(--ink);
       background:
-        radial-gradient(1200px 700px at 50% -200px, #f8f5f0 0%, transparent 60%),
-        linear-gradient(var(--bg-top), var(--bg-bot));
-      display:flex; flex-direction:column; align-items:center;
-      min-height:100svh; /* iPhone safe viewport */
+        radial-gradient(1200px 700px at 50% -200px,#f8f5f0 0%,transparent 60%),
+        linear-gradient(var(--bg1),var(--bg2));
+      display:flex; flex-direction:column; align-items:center; min-height:100svh;
     }
+    header{text-align:center;padding:18px 12px 10px}
+    h1{margin:0;font-size:18px;letter-spacing:.10em;font-weight:600}
+    .sub{margin:6px 0 0;font-size:13px;letter-spacing:.06em;opacity:.7}
 
-    /* Header (subtle, editorial) */
-    header{ text-align:center; padding:18px 12px 10px; }
-    h1{
-      margin:0; font-size:18px; letter-spacing:.10em; font-weight:600;
-    }
-    .sub{ margin:6px 0 0; font-size:13px; letter-spacing:.06em; opacity:.7; }
-
-    /* Stage centers the white “page stack” */
-    .stage{
-      flex:1; width:100%;
-      display:grid; place-items:center;
-      padding:14px 0 24px; box-sizing:border-box;
-      overflow:auto; -webkit-overflow-scrolling:touch;
-    }
-
-    /* White paper frame that holds rendered PDF pages */
-    .paper{
-      width:min(var(--paper-max), 94vw);
-      background:#fff; border-radius:var(--radius);
-      padding:var(--paper-pad);
-      box-shadow:var(--shadow);
-      box-sizing:border-box;
-    }
-
-    /* Each canvas = one PDF page */
-    .page{
-      display:block; width:100%;
-      margin:0 auto 14px;
-      background:#fff; border-radius:6px;
-      box-shadow:0 2px 10px rgba(0,0,0,.06);
-    }
-
-    /* Loading bar */
-    .loading{
-      height:4px; border-radius:999px;
-      background: #ffffffa6; box-shadow:0 10px 24px rgba(0,0,0,.08);
-      overflow:hidden; width:min(420px, 70vw); margin:18px auto 0;
-    }
-    .loading::before{
-      content:""; display:block; height:100%; width:40%;
-      background: linear-gradient(90deg, #e6e1da, #fff, #e6e1da);
-      animation: slide 1.2s linear infinite;
-    }
-    @keyframes slide{ from{transform:translateX(-40%)} to{transform:translateX(140%)} }
-
-    .error{ color:#a33; text-align:center; padding:18px; font-size:14px; }
-
-    @media (max-width:768px){
-      h1{ font-size:16px; }
-      .sub{ font-size:12px; }
-      .paper{ width:96vw; }
-    }
+    .stage{flex:1;width:100%;display:grid;place-items:center;padding:14px 0 24px;box-sizing:border-box;overflow:auto;-webkit-overflow-scrolling:touch}
+    .paper{width:min(var(--maxW),94vw);background:#fff;border-radius:8px;box-shadow:0 18px 54px rgba(0,0,0,.14);padding:var(--pad);box-sizing:border-box}
+    .page{display:block;width:100%;margin:0 auto 14px;background:#fff;border-radius:6px;box-shadow:0 2px 10px rgba(0,0,0,.06)}
+    .loading{height:4px;border-radius:999px;background:#ffffffa6;box-shadow:0 10px 24px rgba(0,0,0,.08);overflow:hidden;width:min(420px,70vw);margin:18px auto 0}
+    .loading::before{content:"";display:block;height:100%;width:40%;background:linear-gradient(90deg,#e6e1da,#fff,#e6e1da);animation:slide 1.2s linear infinite}
+    @keyframes slide{from{transform:translateX(-40%)}to{transform:translateX(140%)}}
+    .error{color:#a33;text-align:center;padding:18px;font-size:14px}
+    @media (max-width:768px){ h1{font-size:16px}.sub{font-size:12px}.paper{width:96vw} }
   </style>
 </head>
 <body>
@@ -92,61 +39,64 @@
     <div id="viewer" class="paper" aria-live="polite"></div>
   </main>
 
-  <!-- pdf.js (UMD build works on iOS/Android/Desktop without CORS/module issues) -->
+  <!-- pdf.js (UMD build) -->
   <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
   <script>
-    // Configure pdf.js worker
     pdfjsLib.GlobalWorkerOptions.workerSrc =
       "https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js";
 
-    const PDF_NAME = "DafahDubaiLookbook2025.pdf";  // must sit next to index.html
+    const PDF_NAME = "DafahDubaiLookbook2025.pdf"; // exact filename
     const viewer = document.getElementById("viewer");
-    const bar    = document.getElementById("bar");
+    const bar = document.getElementById("bar");
 
     async function renderPDF(){
       try{
-        // Load
+        viewer.innerHTML = "";
         const pdf = await pdfjsLib.getDocument(PDF_NAME).promise;
-        // Render each page to a <canvas> scaled to the paper width
+
+        // Render pages at device pixel ratio for crispness (cap to avoid huge memory)
+        const dpr = Math.min(window.devicePixelRatio || 1, 2.5); // Retina sharp, safe on iPhone
+
         for (let i = 1; i <= pdf.numPages; i++){
           const page = await pdf.getPage(i);
           const unscaled = page.getViewport({ scale: 1 });
-          const innerPadding = parseInt(getComputedStyle(viewer).paddingLeft) * 2;
-          const targetWidth = Math.max(240, viewer.clientWidth - innerPadding);
-          const scale = targetWidth / unscaled.width;
-          const viewport = page.getViewport({ scale });
 
+          // Fit to paper width (account inner padding ~2*var(--pad))
+          const style = getComputedStyle(viewer);
+          const innerPad = parseInt(style.paddingLeft) + parseInt(style.paddingRight);
+          const cssTargetW = Math.max(240, viewer.clientWidth - innerPad); // CSS pixels
+          const renderScale = (cssTargetW * dpr) / unscaled.width;         // device pixels
+          const viewport = page.getViewport({ scale: renderScale });
+
+          // Canvas at device-pixel size, but display at CSS width for sharpness
           const canvas = document.createElement("canvas");
           canvas.className = "page";
           canvas.width  = Math.ceil(viewport.width);
           canvas.height = Math.ceil(viewport.height);
+          canvas.style.width  = cssTargetW + "px";
+          canvas.style.height = Math.round(viewport.height / dpr) + "px";
 
           const ctx = canvas.getContext("2d", { alpha:false });
+          ctx.imageSmoothingEnabled = true;
           await page.render({ canvasContext: ctx, viewport }).promise;
 
           viewer.appendChild(canvas);
-          // light progress feedback
           if (bar) bar.style.width = Math.min(100, (i/pdf.numPages)*100) + "%";
         }
       }catch(err){
         console.error(err);
         viewer.innerHTML =
-          '<div class="error">Couldn’t load <strong>DafahDubaiLookbook2025.pdf</strong>. Ensure it’s in the same folder and the name (case) matches exactly.</div>';
+          '<div class="error">Couldn’t load <strong>DafahDubaiLookbook2025.pdf</strong>. Make sure it’s next to index.html and the name matches exactly.</div>';
       }finally{
-        // hide loading bar
         if (bar) bar.style.display = "none";
       }
     }
 
-    // Initial render
     renderPDF();
 
-    // Refit on orientation/resize (keeps pages perfectly sized/centered)
+    // Re-render on rotate/resize so pages stay sharp and centered
     let t;
-    addEventListener("resize", () => {
-      clearTimeout(t);
-      t = setTimeout(() => { viewer.innerHTML = ""; bar.style.display="block"; renderPDF(); }, 160);
-    });
+    addEventListener("resize", () => { clearTimeout(t); t = setTimeout(renderPDF, 160); });
   </script>
 </body>
 </html>
